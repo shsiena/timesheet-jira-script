@@ -266,7 +266,7 @@ async function main() {
     for (const [ticketKey, ticketActions] of sortedTickets) {
       const summary = summaries.get(ticketKey) || "";
       const truncatedSummary =
-        summary.length > 50 ? summary.slice(0, 47) + "..." : summary;
+        summary.length > 150 ? summary.slice(0, 147) + "..." : summary;
       console.log(`  ${ticketKey}: ${ticketActions.join(", ")}`);
       console.log(`    └─ ${truncatedSummary}`);
     }
