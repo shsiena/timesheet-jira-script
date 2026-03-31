@@ -80,22 +80,25 @@ async function getCurrentUserId(): Promise<string> {
 
 async function searchIssues(jql: string): Promise<JiraIssue[]> {
   const allIssues: JiraIssue[] = [];
-  let startAt = 0;
+  let nextPageToken: string | undefined;
   const maxResults = 100;
 
   while (true) {
-    const data = await jiraFetch("/search/jql", {
+    const params: Record<string, string> = {
       jql,
-      startAt: String(startAt),
       maxResults: String(maxResults),
       fields: "key,created,summary,creator",
-    });
+    };
+    if (nextPageToken) {
+      params.nextPageToken = nextPageToken;
+    }
+
+    const data = await jiraFetch("/search/jql", params);
 
     allIssues.push(...data.issues);
 
-    // New API uses isLast instead of total
-    if (data.isLast || data.issues.length === 0) break;
-    startAt += data.issues.length;
+    if (data.isLast !== false || data.issues.length === 0) break;
+    nextPageToken = data.nextPageToken;
   }
 
   return allIssues;
